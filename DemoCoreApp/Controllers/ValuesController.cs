@@ -16,11 +16,18 @@ namespace DemoCoreApp.Controllers
             return Names.PopularNames;
         }
 
-        [ResponseCache(Duration = 60)]
+        [ResponseCache(Duration = 60, Location = ResponseCacheLocation.Any)]
         [HttpGet("{page}")] // attributed routing
-        public ActionResult<IEnumerable<string>> Get(int page)
+        public ActionResult<Model> Get(int page)
         {
-            return Names.PopularNames.Skip((page - 1) * PageSize).Take(PageSize).ToList();
+            var model = new Model
+            {
+                Names = Names.PopularNames.Skip((page - 1) * PageSize).Take(PageSize).ToList(),
+                PreviousLink = page == 1 ? null : Request.Scheme + "://" + Request.Host + "/api/values/" + (page - 1),
+                NextLink = Request.Scheme + "://" + Request.Host + "/api/values/" + (page + 1)
+            };
+
+            return model;
         }
 
         [HttpPost]
